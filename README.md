@@ -1,1 +1,3 @@
-Chosen style guide enforced by ESLint: Airbnb
+JS style: Airbnb
+
+UI Framework: React Native Paper due to its similarity to web based Material UI
