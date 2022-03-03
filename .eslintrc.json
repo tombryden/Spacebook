@@ -6,6 +6,7 @@
     "no-use-before-define": "off",
     "react/react-in-jsx-scope": "off",
     // "react/jsx-filename-extension": "off",
-    "react/style-prop-object": "off"
+    "react/style-prop-object": "off",
+    "react/prop-types": "off"
   }
 }
