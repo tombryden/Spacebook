@@ -10,10 +10,10 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  //Loading sign up request
+  // Loading sign up request
   const [loading, setLoading] = useState(false);
 
-  //snack bar states
+  // Snack bar states
   const [snackText, setSnackText] = useState("");
   const [snackVisible, setSnackVisible] = useState(false);
 
