@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Button, Snackbar, TextInput } from "react-native-paper";
 import axios from "axios";
 
-function Signup() {
+function Signup({ navigation }) {
   // Input field states
   const [first, setFirst] = useState("");
   const [surname, setSurname] = useState("");
@@ -61,7 +61,8 @@ function Signup() {
             password,
             setSnackText,
             setSnackVisible,
-            setLoading
+            setLoading,
+            navigation
           );
         }}
       >
@@ -101,7 +102,8 @@ const signUp = (
   password,
   setSnackText,
   setSnackVisible,
-  setLoading
+  setLoading,
+  navigation
 ) => {
   setLoading(true);
 
@@ -117,16 +119,22 @@ const signUp = (
   return axios
     .post("/user", signUpRequest)
     .then((response) => {
+      // successful signup
       console.log(response);
-      setSnackText("Successfully signed up");
-      setSnackVisible(true);
+
+      // Success - redirect to profile page without nav history
+      navigation.reset({
+        routes: [{ name: "Profile" }],
+      });
     })
     .catch((error) => {
+      // error occurred
       console.log(error);
       setSnackText("Something went wrong");
       setSnackVisible(true);
     })
     .finally(() => {
+      // request complete, set loading to false
       setLoading(false);
     });
 };

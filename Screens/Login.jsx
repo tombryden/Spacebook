@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Snackbar, TextInput } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Login({ navigation }) {
   // Input states
@@ -39,7 +40,14 @@ function Login({ navigation }) {
         mode="outlined"
         loading={loading}
         onPress={() => {
-          login(email, password, setSnackText, setSnackVisible, setLoading);
+          login(
+            email,
+            password,
+            setSnackText,
+            setSnackVisible,
+            setLoading,
+            navigation
+          );
         }}
       >
         Login
@@ -82,7 +90,14 @@ const styles = StyleSheet.create({
 });
 
 // Login function
-const login = (email, password, setSnackText, setSnackVisible, setLoading) => {
+const login = (
+  email,
+  password,
+  setSnackText,
+  setSnackVisible,
+  setLoading,
+  navigation
+) => {
   // Set login request loading
   setLoading(true);
 
@@ -92,12 +107,20 @@ const login = (email, password, setSnackText, setSnackVisible, setLoading) => {
   // Send request to backend
   return axios
     .post("/login", loginObj)
-    .then((response) => {
+    .then(async (response) => {
       console.log(response);
 
-      // Success
-      setSnackText("Successfully logged in");
-      setSnackVisible(true);
+      // store user id / token in asyncstorage - already in try/catch so no issues
+      await AsyncStorage.setItem("@user_id", response.data.id);
+      await AsyncStorage.setItem("@session_token", response.data.token);
+
+      // Success - redirect to profile page without nav history
+      navigation.reset({
+        routes: [{ name: "Profile" }],
+      });
+
+      // setSnackText("Successfully logged in");
+      // setSnackVisible(true);
     })
     .catch((error) => {
       console.log(error);
