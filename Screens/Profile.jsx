@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Avatar } from "react-native-paper";
+import { Avatar, Button } from "react-native-paper";
 
 function Profile() {
   // states for profile
@@ -31,8 +31,20 @@ function Profile() {
 
   return (
     <View style={styles.container}>
-      <Avatar.Image size={120} />
-      <Text style={styles.nameText}>{fullName}</Text>
+      {/* profileContainer view contains profile avatar, edit profile button, friends button */}
+      <View style={styles.profileContainer}>
+        <Avatar.Image size={120} />
+        <Text style={styles.nameText}>{fullName}</Text>
+        {/* container for edit profile / friends */}
+        <View style={styles.buttonContainer}>
+          <Button icon="account-edit">Edit Profile</Button>
+          <Button icon="account-group">Friends</Button>
+        </View>
+      </View>
+
+      <View style={styles.postContainer}>
+        <Text style={styles.postText}>Posts</Text>
+      </View>
     </View>
   );
 }
@@ -40,13 +52,29 @@ function Profile() {
 const styles = StyleSheet.create({
   container: {
     padding: "20px",
-    flex: 1,
     backgroundColor: "#fff",
+    // borderWidth: 1,
+    // borderColor: "red",
+    minHeight: "100%",
+  },
+  profileContainer: {
+    // display flex so doesnt take up full container
+    display: "flex",
     alignItems: "center",
-    justifyContent: "center",
     gap: "5px",
   },
   nameText: {
+    fontSize: "25px",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  postContainer: {},
+  postText: {
     fontSize: "25px",
   },
 });
