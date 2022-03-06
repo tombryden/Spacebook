@@ -1,8 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Avatar, Button, Snackbar, TextInput } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  Snackbar,
+  TextInput,
+} from "react-native-paper";
+import Post from "../components/Post";
 
 function Profile() {
   // states for userid/token
@@ -15,6 +22,8 @@ function Profile() {
   // state for posts
   const [postText, setPostText] = useState("");
   const [postLoading, setPostLoading] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [allPostsLoading, setAllPostsLoading] = useState(true);
 
   // states for snackbar
   const [snackText, setSnackText] = useState("");
@@ -36,7 +45,13 @@ function Profile() {
         console.log(`${auserid} | ${asessionToken}`);
 
         // get user info and update states
-        getUserInfo(auserid, asessionToken, setFullName);
+        getUserInfo(
+          auserid,
+          asessionToken,
+          setFullName,
+          setPosts,
+          setAllPostsLoading
+        );
       } else {
         // reset and kick back to login
       }
@@ -73,6 +88,7 @@ function Profile() {
             value={postText}
           />
           <Button
+            style={styles.postButton}
             mode="contained"
             loading={postLoading}
             onPress={() => {
@@ -89,6 +105,24 @@ function Profile() {
           >
             Post
           </Button>
+
+          {/* list of posts */}
+          {allPostsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={{ flex: 1, flexDirection: "row" }}>
+              <FlatList
+                data={posts}
+                renderItem={({ item }) => (
+                  <Post
+                    fullname={`${item.author.first_name} ${item.author.last_name}`}
+                    post={item.text}
+                    marginBottom
+                  />
+                )}
+              />
+            </View>
+          )}
         </View>
       </View>
 
@@ -133,21 +167,42 @@ const styles = StyleSheet.create({
   postText: {
     fontSize: "25px",
   },
+  postButton: {
+    marginBottom: "5px",
+  },
 });
 
 // functions
-function getUserInfo(userid, token, setFullName) {
+function getUserInfo(userid, token, setFullName, setPosts, setAllPostsLoading) {
   return axios
     .get(`/user/${userid}`, {
       headers: { "X-Authorization": token },
     })
     .then((response) => {
-      // success - store name in state
+      // success - store name in state and get user posts
       console.log(response);
       setFullName(`${response.data.first_name} ${response.data.last_name}`);
+
+      // get user posts
+      getUserPosts(userid, token, setPosts, setAllPostsLoading);
     })
     .catch((error) => {
       console.log(error);
+    });
+}
+
+function getUserPosts(userid, token, setPosts, setAllPostsLoading) {
+  return axios
+    .get(`/user/${userid}/post`, { headers: { "X-Authorization": token } })
+    .then((response) => {
+      console.log(response.data);
+      setPosts(response.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      setAllPostsLoading(false);
     });
 }
 
