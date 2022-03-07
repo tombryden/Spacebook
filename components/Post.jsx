@@ -13,6 +13,9 @@ function Post(props) {
     userid,
     postid,
     token,
+    setSnackText,
+    setSnackVisible,
+    navigation,
   } = props;
 
   const formattedDate = moment(timestamp).format("DD MMMM"); // eg 06 March
@@ -43,7 +46,14 @@ function Post(props) {
               icon="thumb-up-outline"
               size={20}
               onPress={() => {
-                likePost(userid, postid, token);
+                likePost(
+                  userid,
+                  postid,
+                  token,
+                  setSnackText,
+                  setSnackVisible,
+                  navigation
+                );
               }}
             />
           </View>
@@ -88,7 +98,14 @@ const styles = StyleSheet.create({
 // functions
 
 // like a post
-function likePost(userid, postid, token) {
+function likePost(
+  userid,
+  postid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation
+) {
   return axios
     .post(`/user/${userid}/post/${postid}/like`, null, {
       headers: { "X-Authorization": token },
@@ -96,20 +113,35 @@ function likePost(userid, postid, token) {
     .then((response) => {
       // success - post liked
       console.log(response);
+      setSnackText("Post liked");
+      setSnackVisible(true);
     })
     .catch((error) => {
       const { status } = error.response;
       if (status === 401) {
         // unauthorised - kick to login
+        goToLogin(navigation);
       } else if (status === 403) {
         // already liked posted
+        setSnackText("Post already liked");
+        setSnackVisible(true);
       } else if (status === 404) {
         // post not found
+        setSnackText("Post not found");
+        setSnackVisible(true);
       } else if (status === 500) {
         // internal error
+        setSnackText("An internal error occured. Try again later");
+        setSnackVisible(true);
       }
-      console.log(error);
     });
+}
+
+// ask user to login again
+function goToLogin(navigation) {
+  return navigation.reset({
+    routes: [{ name: "Login" }],
+  });
 }
 
 export default Post;
