@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Snackbar, TextInput } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,6 +15,10 @@ function Login({ navigation }) {
   // Snackbar states
   const [snackText, setSnackText] = useState("");
   const [snackVisible, setSnackVisible] = useState(false);
+
+  useEffect(() => {
+    autoLogin(navigation);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -138,5 +142,20 @@ const login = (
       setLoading(false);
     });
 };
+
+// auto login for dev purposes
+async function autoLogin(navigation) {
+  // get storage for userid / token
+  const userid = await AsyncStorage.getItem("@user_id");
+  const token = await AsyncStorage.getItem("@session_token");
+
+  if (userid !== null && token !== null) {
+    // redirect to profile page
+    // Success - redirect to profile page without nav history
+    navigation.reset({
+      routes: [{ name: "Profile" }],
+    });
+  }
+}
 
 export default Login;

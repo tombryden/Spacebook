@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import { StyleSheet, Text, View, FlatList, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ActivityIndicator,
@@ -11,10 +11,10 @@ import {
 } from "react-native-paper";
 import Post from "../components/Post";
 
-function Profile() {
-  // states for userid/token
-  const [userid, setUserID] = useState("");
-  const [sessionToken, setSessionToken] = useState("");
+function Profile({ navigation }) {
+  // refs for userid/token
+  const userid = useRef("");
+  const sessionToken = useRef("");
 
   // states for profile
   const [fullName, setFullName] = useState("");
@@ -36,9 +36,9 @@ function Profile() {
       const auserid = await AsyncStorage.getItem("@user_id");
       const asessionToken = await AsyncStorage.getItem("@session_token");
 
-      // set states for userid/token to use later
-      setUserID(auserid);
-      setSessionToken(asessionToken);
+      // set refs for userid/token to use later
+      userid.current = auserid;
+      sessionToken.current = asessionToken;
 
       if (auserid !== null && asessionToken !== null) {
         // value previously stored
@@ -54,14 +54,16 @@ function Profile() {
         );
       } else {
         // reset and kick back to login
+        goToLogin(navigation);
       }
     } catch (e) {
       // error reading value - reset and kick back to login
+      goToLogin(navigation);
     }
   }, []);
 
   return (
-    <>
+    <ScrollView>
       <View style={styles.container}>
         {/* profileContainer view contains profile avatar, edit profile button, friends button */}
         <View style={styles.profileContainer}>
@@ -93,13 +95,14 @@ function Profile() {
             loading={postLoading}
             onPress={() => {
               createNewPost(
-                userid,
-                sessionToken,
+                userid.current,
+                sessionToken.current,
                 postText,
                 setSnackText,
                 setSnackVisible,
                 setPostText,
-                setPostLoading
+                setPostLoading,
+                navigation
               );
             }}
           >
@@ -110,18 +113,22 @@ function Profile() {
           {allPostsLoading ? (
             <ActivityIndicator />
           ) : (
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <FlatList
-                data={posts}
-                renderItem={({ item }) => (
-                  <Post
-                    fullname={`${item.author.first_name} ${item.author.last_name}`}
-                    post={item.text}
-                    marginBottom
-                  />
-                )}
-              />
-            </View>
+            <FlatList
+              data={posts}
+              keyExtractor={(item) => item.post_id}
+              renderItem={({ item }) => (
+                <Post
+                  fullname={`${item.author.first_name} ${item.author.last_name}`}
+                  post={item.text}
+                  timestamp={item.timestamp}
+                  likes={item.numLikes}
+                  userid={userid.current}
+                  token={sessionToken.current}
+                  postid={item.post_id}
+                  marginBottom
+                />
+              )}
+            />
           )}
         </View>
       </View>
@@ -135,7 +142,7 @@ function Profile() {
       >
         {snackText}
       </Snackbar>
-    </>
+    </ScrollView>
   );
 }
 
@@ -213,11 +220,10 @@ function createNewPost(
   setSnackText,
   setSnackVisible,
   setPostText,
-  setPostLoading
+  setPostLoading,
+  navigation
 ) {
   setPostLoading(true);
-
-  console.log(`${userid} | ${token}`);
 
   return axios
     .post(
@@ -242,6 +248,7 @@ function createNewPost(
         setSnackVisible(true);
       } else if (error.response.status === 401) {
         // reset and kick back to login - unauthorised
+        goToLogin(navigation);
       } else {
         setSnackText("An internal error occured. Try again later");
         setSnackVisible(true);
@@ -250,6 +257,13 @@ function createNewPost(
     .finally(() => {
       setPostLoading(false);
     });
+}
+
+// ask user to login again
+function goToLogin(navigation) {
+  return navigation.reset({
+    routes: [{ name: "Login" }],
+  });
 }
 
 export default Profile;
