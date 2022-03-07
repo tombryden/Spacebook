@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
-import { StyleSheet, Text, View, FlatList, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ActivityIndicator,
@@ -42,7 +42,6 @@ function Profile({ navigation }) {
 
       if (auserid !== null && asessionToken !== null) {
         // value previously stored
-        console.log(`${auserid} | ${asessionToken}`);
 
         // get user info and update states
         getUserInfo(
@@ -112,7 +111,9 @@ function Profile({ navigation }) {
                 setSnackVisible,
                 setPostText,
                 setPostLoading,
-                navigation
+                navigation,
+                setPosts,
+                setAllPostsLoading
               );
             }}
           >
@@ -133,6 +134,9 @@ function Profile({ navigation }) {
                 userid={userid.current}
                 token={sessionToken.current}
                 postid={item.post_id}
+                setSnackText={setSnackText}
+                setSnackVisible={setSnackVisible}
+                navigation={navigation}
                 marginBottom
               />
             ))
@@ -238,7 +242,9 @@ function createNewPost(
   setSnackVisible,
   setPostText,
   setPostLoading,
-  navigation
+  navigation,
+  setPosts,
+  setAllPostsLoading
 ) {
   setPostLoading(true);
 
@@ -255,6 +261,9 @@ function createNewPost(
       setSnackText("Post created");
       setSnackVisible(true);
       setPostText("");
+
+      // refresh posts
+      getUserPosts(userid, token, setPosts, setAllPostsLoading);
     })
     .catch((error) => {
       console.log(error);
