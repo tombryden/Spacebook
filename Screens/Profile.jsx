@@ -73,77 +73,90 @@ function Profile({ navigation }) {
       >
         {snackText}
       </Snackbar>
-      <ScrollView>
-        <View style={styles.container}>
-          {/* profileContainer view contains profile avatar, edit profile button, friends button */}
-          <View style={styles.profileContainer}>
-            <Avatar.Image size={120} />
-            <Text style={styles.nameText}>{fullName}</Text>
-            {/* container for edit profile / friends */}
-            <View style={styles.buttonContainer}>
-              <Button icon="account-edit">Edit Profile</Button>
-              <Button icon="account-group">Friends</Button>
-            </View>
-          </View>
-
-          <View style={styles.postContainer}>
-            <Text style={styles.postText}>Posts</Text>
-            <TextInput
-              mode="outlined"
-              placeholder="Create a new post"
-              right={<TextInput.Affix text="/50" />}
-              multiline
-              numberOfLines={4}
-              onChangeText={(post) => {
-                setPostText(post);
-              }}
-              value={postText}
-            />
-            <Button
-              style={styles.postButton}
-              mode="contained"
-              loading={postLoading}
-              onPress={() => {
-                createNewPost(
-                  userid.current,
-                  sessionToken.current,
-                  postText,
-                  setSnackText,
-                  setSnackVisible,
-                  setPostText,
-                  setPostLoading,
-                  navigation
-                );
-              }}
-            >
-              Post
-            </Button>
-
-            {/* list of posts */}
-            {allPostsLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <FlatList
-                scrollEnabled={false}
-                nestedScrollEnabled
-                data={posts}
-                keyExtractor={(item) => item.post_id}
-                renderItem={({ item }) => (
-                  <Post
-                    fullname={`${item.author.first_name} ${item.author.last_name}`}
-                    post={item.text}
-                    timestamp={item.timestamp}
-                    likes={item.numLikes}
-                    userid={userid.current}
-                    token={sessionToken.current}
-                    postid={item.post_id}
-                    marginBottom
-                  />
-                )}
-              />
-            )}
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* <View style={styles.container}> */}
+        {/* profileContainer view contains profile avatar, edit profile button, friends button */}
+        <View style={styles.profileContainer}>
+          <Avatar.Image size={120} />
+          <Text style={styles.nameText}>{fullName}</Text>
+          {/* container for edit profile / friends */}
+          <View style={styles.buttonContainer}>
+            <Button icon="account-edit">Edit Profile</Button>
+            <Button icon="account-group">Friends</Button>
           </View>
         </View>
+
+        <View style={styles.postContainer}>
+          <Text style={styles.postText}>Posts</Text>
+          <TextInput
+            mode="outlined"
+            placeholder="Create a new post"
+            right={<TextInput.Affix text="/50" />}
+            multiline
+            numberOfLines={4}
+            onChangeText={(post) => {
+              setPostText(post);
+            }}
+            value={postText}
+          />
+          <Button
+            style={styles.postButton}
+            mode="contained"
+            loading={postLoading}
+            onPress={() => {
+              createNewPost(
+                userid.current,
+                sessionToken.current,
+                postText,
+                setSnackText,
+                setSnackVisible,
+                setPostText,
+                setPostLoading,
+                navigation
+              );
+            }}
+          >
+            Post
+          </Button>
+
+          {/* list of posts - using .map instead of FlatList so ScrollView can be used */}
+          {allPostsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            posts.map((item) => (
+              <Post
+                key={item.post_id}
+                fullname={`${item.author.first_name} ${item.author.last_name}`}
+                post={item.text}
+                timestamp={item.timestamp}
+                likes={item.numLikes}
+                userid={userid.current}
+                token={sessionToken.current}
+                postid={item.post_id}
+                marginBottom
+              />
+            ))
+            // <FlatList
+            //   scrollEnabled={false}
+            //   nestedScrollEnabled
+            //   data={posts}
+            //   keyExtractor={(item) => item.post_id}
+            //   renderItem={({ item }) => (
+            //     <Post
+            //       fullname={`${item.author.first_name} ${item.author.last_name}`}
+            //       post={item.text}
+            //       timestamp={item.timestamp}
+            //       likes={item.numLikes}
+            //       userid={userid.current}
+            //       token={sessionToken.current}
+            //       postid={item.post_id}
+            //       marginBottom
+            //     />
+            //   )}
+            // />
+          )}
+        </View>
+        {/* </View> */}
       </ScrollView>
     </>
   );
@@ -193,7 +206,6 @@ function getUserInfo(userid, token, setFullName, setPosts, setAllPostsLoading) {
     })
     .then((response) => {
       // success - store name in state and get user posts
-      console.log(response);
       setFullName(`${response.data.first_name} ${response.data.last_name}`);
 
       // get user posts
@@ -208,7 +220,6 @@ function getUserPosts(userid, token, setPosts, setAllPostsLoading) {
   return axios
     .get(`/user/${userid}/post`, { headers: { "X-Authorization": token } })
     .then((response) => {
-      console.log(response.data);
       setPosts(response.data);
     })
     .catch((error) => {
@@ -239,9 +250,8 @@ function createNewPost(
         headers: { "X-Authorization": token },
       }
     )
-    .then((response) => {
+    .then(() => {
       // success - refresh posts with notification and reset create a new post input
-      console.log(response);
       setSnackText("Post created");
       setSnackVisible(true);
       setPostText("");
