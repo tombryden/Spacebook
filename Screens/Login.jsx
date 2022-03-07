@@ -34,7 +34,7 @@ function Login({ navigation }) {
         style={styles.input}
         label="Password"
         mode="outlined"
-        secureTextEntry="true"
+        secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
       />
@@ -81,12 +81,12 @@ function Login({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: "20px",
+    padding: 20,
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    gap: "5px",
+    // gap: "5px",
   },
   input: {
     width: "100%",
@@ -115,7 +115,7 @@ const login = (
       console.log(response);
 
       // store user id / token in asyncstorage - already in try/catch so no issues
-      await AsyncStorage.setItem("@user_id", response.data.id);
+      await AsyncStorage.setItem("@user_id", response.data.id.toString());
       await AsyncStorage.setItem("@session_token", response.data.token);
 
       // Success - redirect to profile page without nav history

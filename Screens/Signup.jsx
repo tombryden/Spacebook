@@ -44,7 +44,7 @@ function Signup({ navigation }) {
         style={styles.input}
         label="Password"
         mode="outlined"
-        secureTextEntry="true"
+        secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
       />
@@ -82,12 +82,12 @@ function Signup({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: "20px",
+    padding: 20,
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    gap: "5px",
+    // gap: "5px",
   },
   input: {
     width: "100%",

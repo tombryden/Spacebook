@@ -63,76 +63,7 @@ function Profile({ navigation }) {
   }, []);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {/* profileContainer view contains profile avatar, edit profile button, friends button */}
-        <View style={styles.profileContainer}>
-          <Avatar.Image size={120} />
-          <Text style={styles.nameText}>{fullName}</Text>
-          {/* container for edit profile / friends */}
-          <View style={styles.buttonContainer}>
-            <Button icon="account-edit">Edit Profile</Button>
-            <Button icon="account-group">Friends</Button>
-          </View>
-        </View>
-
-        <View style={styles.postContainer}>
-          <Text style={styles.postText}>Posts</Text>
-          <TextInput
-            mode="outlined"
-            placeholder="Create a new post"
-            right={<TextInput.Affix text="/50" />}
-            multiline
-            numberOfLines={4}
-            onChangeText={(post) => {
-              setPostText(post);
-            }}
-            value={postText}
-          />
-          <Button
-            style={styles.postButton}
-            mode="contained"
-            loading={postLoading}
-            onPress={() => {
-              createNewPost(
-                userid.current,
-                sessionToken.current,
-                postText,
-                setSnackText,
-                setSnackVisible,
-                setPostText,
-                setPostLoading,
-                navigation
-              );
-            }}
-          >
-            Post
-          </Button>
-
-          {/* list of posts */}
-          {allPostsLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <FlatList
-              data={posts}
-              keyExtractor={(item) => item.post_id}
-              renderItem={({ item }) => (
-                <Post
-                  fullname={`${item.author.first_name} ${item.author.last_name}`}
-                  post={item.text}
-                  timestamp={item.timestamp}
-                  likes={item.numLikes}
-                  userid={userid.current}
-                  token={sessionToken.current}
-                  postid={item.post_id}
-                  marginBottom
-                />
-              )}
-            />
-          )}
-        </View>
-      </View>
-
+    <>
       {/* snackbar outside container as causes display issue */}
       <Snackbar
         visible={snackVisible}
@@ -142,13 +73,85 @@ function Profile({ navigation }) {
       >
         {snackText}
       </Snackbar>
-    </ScrollView>
+      <ScrollView>
+        <View style={styles.container}>
+          {/* profileContainer view contains profile avatar, edit profile button, friends button */}
+          <View style={styles.profileContainer}>
+            <Avatar.Image size={120} />
+            <Text style={styles.nameText}>{fullName}</Text>
+            {/* container for edit profile / friends */}
+            <View style={styles.buttonContainer}>
+              <Button icon="account-edit">Edit Profile</Button>
+              <Button icon="account-group">Friends</Button>
+            </View>
+          </View>
+
+          <View style={styles.postContainer}>
+            <Text style={styles.postText}>Posts</Text>
+            <TextInput
+              mode="outlined"
+              placeholder="Create a new post"
+              right={<TextInput.Affix text="/50" />}
+              multiline
+              numberOfLines={4}
+              onChangeText={(post) => {
+                setPostText(post);
+              }}
+              value={postText}
+            />
+            <Button
+              style={styles.postButton}
+              mode="contained"
+              loading={postLoading}
+              onPress={() => {
+                createNewPost(
+                  userid.current,
+                  sessionToken.current,
+                  postText,
+                  setSnackText,
+                  setSnackVisible,
+                  setPostText,
+                  setPostLoading,
+                  navigation
+                );
+              }}
+            >
+              Post
+            </Button>
+
+            {/* list of posts */}
+            {allPostsLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <FlatList
+                scrollEnabled={false}
+                nestedScrollEnabled
+                data={posts}
+                keyExtractor={(item) => item.post_id}
+                renderItem={({ item }) => (
+                  <Post
+                    fullname={`${item.author.first_name} ${item.author.last_name}`}
+                    post={item.text}
+                    timestamp={item.timestamp}
+                    likes={item.numLikes}
+                    userid={userid.current}
+                    token={sessionToken.current}
+                    postid={item.post_id}
+                    marginBottom
+                  />
+                )}
+              />
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: "20px",
+    padding: 20,
     backgroundColor: "#fff",
     // borderWidth: 1,
     // borderColor: "red",
@@ -158,10 +161,10 @@ const styles = StyleSheet.create({
     // display flex so doesnt take up full container
     display: "flex",
     alignItems: "center",
-    gap: "5px",
+    // gap: "5px",
   },
   nameText: {
-    fontSize: "25px",
+    fontSize: 25,
     fontWeight: "bold",
   },
   buttonContainer: {
@@ -170,12 +173,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-start",
   },
-  postContainer: { flex: 1, gap: "5px" },
+  postContainer: {
+    flex: 1,
+    // gap: "5px"
+  },
   postText: {
-    fontSize: "25px",
+    fontSize: 25,
   },
   postButton: {
-    marginBottom: "5px",
+    marginBottom: 5,
   },
 });
 

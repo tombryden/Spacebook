@@ -21,7 +21,7 @@ function Post(props) {
   return (
     <Card
       mode="outlined"
-      style={[styles.container, marginBottom && { marginBottom: "10px" }]}
+      style={[styles.container, marginBottom && { marginBottom: 10 }]}
     >
       <Card.Content>
         <View style={styles.cardContainer}>
@@ -67,14 +67,14 @@ const styles = StyleSheet.create({
   avatarNameContainer: {
     flex: 1,
     flexDirection: "row",
-    gap: "5px",
+    // gap: "5px",
   },
   fullname: {
     fontWeight: "bold",
   },
   postText: {
-    fontSize: "25px",
-    marginTop: "10px",
+    fontSize: 25,
+    marginTop: 10,
   },
   rightContainer: {
     marginLeft: "auto",
