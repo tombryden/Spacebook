@@ -14,6 +14,10 @@ function Friends({ navigation }) {
   const [requests, setRequests] = useState([]);
   const [requestsLoading, setRequestsLoading] = useState(true);
 
+  // friend list state
+  const [friends, setFriends] = useState([]);
+  const [friendsLoading, setFriendsLoading] = useState(true);
+
   // states for snackbar
   const [snackText, setSnackText] = useState("");
   const [snackVisible, setSnackVisible] = useState(false);
@@ -34,7 +38,7 @@ function Friends({ navigation }) {
       if (auserid !== null && asessionToken !== null) {
         // value previously stored
 
-        // get friend requests instantly on mount... and below kick off a timer every 5 seconds
+        // get friends instantly on mount... and below kick off a timer every 5 seconds
         getFriendRequests(
           asessionToken,
           setRequests,
@@ -43,6 +47,17 @@ function Friends({ navigation }) {
           navigation,
           setRequestsLoading,
           false
+        );
+
+        getFriendsList(
+          auserid,
+          asessionToken,
+          setFriends,
+          setFriendsLoading,
+          false,
+          navigation,
+          setSnackText,
+          setSnackVisible
         );
 
         refreshInterval = setInterval(() => {
@@ -56,6 +71,18 @@ function Friends({ navigation }) {
             setRequestsLoading,
             false
           );
+
+          // get friends list
+          getFriendsList(
+            auserid,
+            asessionToken,
+            setFriends,
+            setFriendsLoading,
+            false,
+            navigation,
+            setSnackText,
+            setSnackVisible
+          );
         }, 5000);
       } else {
         // reset and kick back to login
@@ -66,6 +93,7 @@ function Friends({ navigation }) {
       navigation.navigate("Login");
     }
 
+    // clear interval on component unmount
     return () => clearInterval(refreshInterval);
   }, []);
 
@@ -115,7 +143,34 @@ function Friends({ navigation }) {
         )}
 
         <Text>Friends</Text>
-        <Friend marginBottom />
+        {friendsLoading ? (
+          <ActivityIndicator />
+        ) : (
+          friends.map((item) => (
+            <Friend
+              key={item.user_id}
+              userid={item.user_id}
+              fullname={`${item.user_givenname} ${item.user_familyname}`}
+              navigation={navigation}
+              setSnackText={setSnackText}
+              setSnackVisible={setSnackVisible}
+              sessionToken={sessionToken.current}
+              getFriendsList={() => {
+                getFriendsList(
+                  userid.current,
+                  sessionToken.current,
+                  setFriends,
+                  setFriendsLoading,
+                  true,
+                  navigation,
+                  setSnackText,
+                  setSnackVisible
+                );
+              }}
+              marginBottom
+            />
+          ))
+        )}
       </ScrollView>
     </>
   );
@@ -176,6 +231,56 @@ function getFriendRequests(
     })
     .finally(() => {
       setRequestsLoading(false);
+    });
+}
+
+/**
+ * Get list of friends
+ * @param {string} userid User to get friends list
+ * @param {string} token Current logged in user token
+ * @param {Function} setFriends State for friends json
+ * @param {Function} setFriendsLoading State for loading spinner
+ * @param {Boolean} displayLoading True = spinner will appear when loading, false = no spinner, results updated in background
+ * @param {Function} navigation Navigation prop from react navigation
+ * @param {Function} setSnackText State for snackbar text
+ * @param {Function} setSnackVisible State for snackbar visiblity
+ * @returns
+ */
+function getFriendsList(
+  userid,
+  token,
+  setFriends,
+  setFriendsLoading,
+  displayLoading,
+  navigation,
+  setSnackText,
+  setSnackVisible
+) {
+  if (displayLoading) setFriendsLoading(true);
+
+  return axios
+    .get(`/user/${userid}/friends`, { headers: { "X-Authorization": token } })
+    .then((response) => {
+      // successfully got friends list
+      setFriends(response.data);
+    })
+    .catch((err) => {
+      const { status } = err.response;
+      if (status === 401) {
+        navigation.navigate("Login");
+      } else if (status === 403) {
+        setSnackText("You can't view non-friends friends lists");
+        setSnackVisible(true);
+      } else if (status === 404) {
+        setSnackText("User not found");
+        setSnackVisible(true);
+      } else {
+        setSnackText("Internal error. Try again later");
+        setSnackVisible(true);
+      }
+    })
+    .finally(() => {
+      setFriendsLoading(false);
     });
 }
 
