@@ -54,7 +54,7 @@ function Friend(props) {
             </View>
           ) : (
             <View style={styles.singleIcon}>
-              {add ? (
+              {add && (
                 <IconButton
                   icon="plus-circle-outline"
                   size={30}
@@ -68,8 +68,6 @@ function Friend(props) {
                     );
                   }}
                 />
-              ) : (
-                <IconButton icon="delete" size={30} onPress={() => {}} />
               )}
             </View>
           )}
