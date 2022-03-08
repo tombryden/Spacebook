@@ -118,14 +118,13 @@ const signUp = (
   // hit user endpoint to create new account with specified info
   return axios
     .post("/user", signUpRequest)
-    .then((response) => {
+    .then(async (response) => {
       // successful signup
       console.log(response);
 
-      // Success - redirect to profile page without nav history
-      navigation.reset({
-        routes: [{ name: "Profile" }],
-      });
+      // Success - redirect to login page to login
+
+      navigation.navigate("Login");
     })
     .catch((error) => {
       // error occurred
