@@ -13,6 +13,7 @@ function Friend(props) {
     setSnackVisible,
     sessionToken,
     navigation,
+    getFriendRequests,
   } = props;
   return (
     <Card mode="outlined" style={marginBottom && { marginBottom: 10 }}>
@@ -31,11 +32,25 @@ function Friend(props) {
                     sessionToken,
                     setSnackText,
                     setSnackVisible,
-                    navigation
+                    navigation,
+                    getFriendRequests
                   );
                 }}
               />
-              <IconButton icon="delete" size={30} />
+              <IconButton
+                icon="delete"
+                size={30}
+                onPress={() => {
+                  deleteFriendRequest(
+                    userid,
+                    sessionToken,
+                    setSnackText,
+                    setSnackVisible,
+                    navigation,
+                    getFriendRequests
+                  );
+                }}
+              />
             </View>
           ) : (
             <View style={styles.singleIcon}>
@@ -54,19 +69,7 @@ function Friend(props) {
                   }}
                 />
               ) : (
-                <IconButton
-                  icon="delete"
-                  size={30}
-                  onPress={() => {
-                    deleteFriendRequest(
-                      userid,
-                      sessionToken,
-                      setSnackText,
-                      setSnackVisible,
-                      navigation
-                    );
-                  }}
-                />
+                <IconButton icon="delete" size={30} onPress={() => {}} />
               )}
             </View>
           )}
@@ -141,13 +144,18 @@ function requestFriend(
  * Confirm an existing friend request
  * @param {string} userid User ID to accept
  * @param {string} token Session token for current logged in user
+ * @param {Function} setSnackText Snackbar text value
+ * @param {Function} setSnackVisible Snackbar boolean for visibility
+ * @param {Function} navigation React navigation prop
+ * @param {Function} getFriendRequests Function to refresh friend requests
  */
 function confirmFriendRequest(
   userid,
   token,
   setSnackText,
   setSnackVisible,
-  navigation
+  navigation,
+  getFriendRequests
 ) {
   axios
     .post(`/friendrequests/${userid}`, null, {
@@ -157,6 +165,9 @@ function confirmFriendRequest(
       // success - friend confirmed
       setSnackText("Friend added");
       setSnackVisible(true);
+
+      // refresh friend requests
+      getFriendRequests();
     })
     .catch((err) => {
       const { status } = err.response;
@@ -181,13 +192,15 @@ function confirmFriendRequest(
  * @param {Function} setSnackText Snackbar text value
  * @param {Function} setSnackVisible Snackbar boolean for visibility
  * @param {Function} navigation React navigation prop
+ * @param {Function} getFriendRequests Function to refresh friend requests
  */
 function deleteFriendRequest(
   userid,
   token,
   setSnackText,
   setSnackVisible,
-  navigation
+  navigation,
+  getFriendRequests
 ) {
   axios
     .delete(`/friendrequests/${userid}`, {
@@ -196,6 +209,9 @@ function deleteFriendRequest(
     .then(() => {
       setSnackText("Friend request declined");
       setSnackVisible(true);
+
+      // refresh friend requests
+      getFriendRequests();
     })
     .catch((err) => {
       const { status } = err.response;
