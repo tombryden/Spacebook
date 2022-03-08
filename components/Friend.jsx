@@ -1,4 +1,3 @@
-import { NavigationRouteContext } from "@react-navigation/native";
 import axios from "axios";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar, Card, IconButton } from "react-native-paper";
@@ -23,7 +22,19 @@ function Friend(props) {
           <Text style={styles.name}>{fullname}</Text>
           {request ? (
             <View style={styles.requestContainer}>
-              <IconButton icon="check-circle" size={30} />
+              <IconButton
+                icon="check-circle"
+                size={30}
+                onPress={() => {
+                  confirmFriendRequest(
+                    userid,
+                    sessionToken,
+                    setSnackText,
+                    setSnackVisible,
+                    navigation
+                  );
+                }}
+              />
               <IconButton icon="delete" size={30} />
             </View>
           ) : (
@@ -33,7 +44,7 @@ function Friend(props) {
                   icon="plus-circle-outline"
                   size={30}
                   onPress={() => {
-                    addFriend(
+                    requestFriend(
                       userid,
                       sessionToken,
                       setSnackText,
@@ -43,7 +54,19 @@ function Friend(props) {
                   }}
                 />
               ) : (
-                <IconButton icon="delete" size={30} />
+                <IconButton
+                  icon="delete"
+                  size={30}
+                  onPress={() => {
+                    deleteFriendRequest(
+                      userid,
+                      sessionToken,
+                      setSnackText,
+                      setSnackVisible,
+                      navigation
+                    );
+                  }}
+                />
               )}
             </View>
           )}
@@ -76,11 +99,17 @@ const styles = StyleSheet.create({
 // FUNCTIONS
 
 /**
- * Add a new friend
+ * Request a new friend
  * @param {string} userid user id to add
  * @param {string} token curent logged in session token
  */
-function addFriend(userid, token, setSnackText, setSnackVisible, navigation) {
+function requestFriend(
+  userid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation
+) {
   return axios
     .post(`/user/${userid}/friends`, null, {
       headers: { "X-Authorization": token },
@@ -100,6 +129,81 @@ function addFriend(userid, token, setSnackText, setSnackVisible, navigation) {
         setSnackVisible(true);
       } else if (error.response.status === 404) {
         setSnackText("User not found");
+        setSnackVisible(true);
+      } else {
+        setSnackText("Internal error. Try again later");
+        setSnackVisible(true);
+      }
+    });
+}
+
+/**
+ * Confirm an existing friend request
+ * @param {string} userid User ID to accept
+ * @param {string} token Session token for current logged in user
+ */
+function confirmFriendRequest(
+  userid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation
+) {
+  axios
+    .post(`/friendrequests/${userid}`, null, {
+      headers: { "X-Authorization": token },
+    })
+    .then(() => {
+      // success - friend confirmed
+      setSnackText("Friend added");
+      setSnackVisible(true);
+    })
+    .catch((err) => {
+      const { status } = err.response;
+      console.log(err);
+      if (status === 401) {
+        // unauthorised
+        navigation.navigate("Login");
+      } else if (status === 404) {
+        setSnackText("Friend request not found");
+        setSnackVisible(true);
+      } else {
+        setSnackText("Internal error. Try again later");
+        setSnackVisible(true);
+      }
+    });
+}
+
+/**
+ *
+ * @param {string} userid User ID to decline
+ * @param {string} token Session token for current logged in user
+ * @param {Function} setSnackText Snackbar text value
+ * @param {Function} setSnackVisible Snackbar boolean for visibility
+ * @param {Function} navigation React navigation prop
+ */
+function deleteFriendRequest(
+  userid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation
+) {
+  axios
+    .delete(`/friendrequests/${userid}`, {
+      headers: { "X-Authorization": token },
+    })
+    .then(() => {
+      setSnackText("Friend request declined");
+      setSnackVisible(true);
+    })
+    .catch((err) => {
+      const { status } = err.response;
+      if (status === 401) {
+        // unauthorised
+        navigation.navigate("Login");
+      } else if (status === 404) {
+        setSnackText("Friend request not found");
         setSnackVisible(true);
       } else {
         setSnackText("Internal error. Try again later");
