@@ -119,9 +119,10 @@ const login = (
       await AsyncStorage.setItem("@session_token", response.data.token);
 
       // Success - redirect to profile page without nav history
-      navigation.reset({
-        routes: [{ name: "Profile" }],
-      });
+      // navigation.reset({
+      //   routes: [{ name: "Profile" }],
+      // });
+      navigation.navigate("TabNavigation", "Profile");
 
       // setSnackText("Successfully logged in");
       // setSnackVisible(true);
@@ -152,9 +153,10 @@ async function autoLogin(navigation) {
   if (userid !== null && token !== null) {
     // redirect to profile page
     // Success - redirect to profile page without nav history
-    navigation.reset({
-      routes: [{ name: "Profile" }],
-    });
+    // navigation.reset({
+    //   routes: [{ name: "Profile" }],
+    // });
+    navigation.navigate("TabNavigation", "Profile");
   }
 }
 

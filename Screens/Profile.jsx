@@ -72,6 +72,7 @@ function Profile({ navigation }) {
       >
         {snackText}
       </Snackbar>
+
       <ScrollView contentContainerStyle={styles.container}>
         {/* <View style={styles.container}> */}
         {/* profileContainer view contains profile avatar, edit profile button, friends button */}
@@ -81,7 +82,14 @@ function Profile({ navigation }) {
           {/* container for edit profile / friends */}
           <View style={styles.buttonContainer}>
             <Button icon="account-edit">Edit Profile</Button>
-            <Button icon="account-group">Friends</Button>
+            <Button
+              icon="account-group"
+              onPress={() => {
+                navigation.navigate("Friends");
+              }}
+            >
+              Friends
+            </Button>
           </View>
         </View>
 
@@ -284,7 +292,7 @@ function createNewPost(
     });
 }
 
-// ask user to login again
+// kick user to login screen
 function goToLogin(navigation) {
   return navigation.reset({
     routes: [{ name: "Login" }],
