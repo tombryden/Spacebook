@@ -49,7 +49,8 @@ function Profile({ navigation }) {
           asessionToken,
           setFullName,
           setPosts,
-          setAllPostsLoading
+          setAllPostsLoading,
+          navigation
         );
       } else {
         // reset and kick back to login
@@ -211,7 +212,14 @@ const styles = StyleSheet.create({
 });
 
 // functions
-function getUserInfo(userid, token, setFullName, setPosts, setAllPostsLoading) {
+function getUserInfo(
+  userid,
+  token,
+  setFullName,
+  setPosts,
+  setAllPostsLoading,
+  navigation
+) {
   return axios
     .get(`/user/${userid}`, {
       headers: { "X-Authorization": token },
@@ -225,6 +233,9 @@ function getUserInfo(userid, token, setFullName, setPosts, setAllPostsLoading) {
     })
     .catch((error) => {
       console.log(error);
+      if (error.response.status === 401) {
+        navigation.navigate("Login");
+      }
     });
 }
 
