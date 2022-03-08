@@ -294,9 +294,7 @@ function createNewPost(
 
 // kick user to login screen
 function goToLogin(navigation) {
-  return navigation.reset({
-    routes: [{ name: "Login" }],
-  });
+  return navigation.navigate("Login");
 }
 
 export default Profile;
