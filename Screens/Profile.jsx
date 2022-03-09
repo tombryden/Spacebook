@@ -11,8 +11,11 @@ import {
 } from "react-native-paper";
 import Post from "../components/Post";
 
-function Profile({ navigation }) {
-  // refs for userid/token
+function Profile({ route, navigation }) {
+  // ref for profile user id
+  const profileUserID = useRef("");
+
+  // refs for logged in userid/token
   const userid = useRef("");
   const sessionToken = useRef("");
 
@@ -43,9 +46,21 @@ function Profile({ navigation }) {
       if (auserid !== null && asessionToken !== null) {
         // value previously stored
 
+        // let for profile to load - default to current logged in userid
+        let finalProfileUserID = auserid;
+
+        // check if this is viewing not your own profile
+        if (route.params !== undefined && route.params.pUserID !== undefined) {
+          const { pUserID } = route.params;
+
+          finalProfileUserID = pUserID;
+        }
+
+        profileUserID.current = finalProfileUserID;
+
         // get user info and update states
         getUserInfo(
-          auserid,
+          finalProfileUserID,
           asessionToken,
           setFullName,
           setPosts,
@@ -113,7 +128,7 @@ function Profile({ navigation }) {
             loading={postLoading}
             onPress={() => {
               createNewPost(
-                userid.current,
+                profileUserID.current,
                 sessionToken.current,
                 postText,
                 setSnackText,
@@ -140,7 +155,7 @@ function Profile({ navigation }) {
                 post={item.text}
                 timestamp={item.timestamp}
                 likes={item.numLikes}
-                userid={userid.current}
+                postUserID={item.author.user_id}
                 token={sessionToken.current}
                 postid={item.post_id}
                 setSnackText={setSnackText}
@@ -149,27 +164,8 @@ function Profile({ navigation }) {
                 marginBottom
               />
             ))
-            // <FlatList
-            //   scrollEnabled={false}
-            //   nestedScrollEnabled
-            //   data={posts}
-            //   keyExtractor={(item) => item.post_id}
-            //   renderItem={({ item }) => (
-            //     <Post
-            //       fullname={`${item.author.first_name} ${item.author.last_name}`}
-            //       post={item.text}
-            //       timestamp={item.timestamp}
-            //       likes={item.numLikes}
-            //       userid={userid.current}
-            //       token={sessionToken.current}
-            //       postid={item.post_id}
-            //       marginBottom
-            //     />
-            //   )}
-            // />
           )}
         </View>
-        {/* </View> */}
       </ScrollView>
     </>
   );

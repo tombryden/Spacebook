@@ -10,7 +10,7 @@ function Post(props) {
     marginBottom,
     timestamp,
     likes,
-    userid,
+    postUserID,
     postid,
     token,
     setSnackText,
@@ -47,7 +47,7 @@ function Post(props) {
               size={20}
               onPress={() => {
                 likePost(
-                  userid,
+                  postUserID,
                   postid,
                   token,
                   setSnackText,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
 
 // like a post
 function likePost(
-  userid,
+  postUserID,
   postid,
   token,
   setSnackText,
@@ -107,23 +107,26 @@ function likePost(
   navigation
 ) {
   return axios
-    .post(`/user/${userid}/post/${postid}/like`, null, {
+    .post(`/user/${postUserID}/post/${postid}/like`, null, {
       headers: { "X-Authorization": token },
     })
-    .then((response) => {
+    .then(() => {
       // success - post liked
-      console.log(response);
       setSnackText("Post liked");
       setSnackVisible(true);
     })
     .catch((error) => {
       const { status } = error.response;
-      if (status === 401) {
+      if (status === 400) {
+        // bad request - error from mysql duplicate entry
+        setSnackText("Post already liked");
+        setSnackVisible(true);
+      } else if (status === 401) {
         // unauthorised - kick to login
-        goToLogin(navigation);
+        navigation.navigate("Login");
       } else if (status === 403) {
         // already liked posted
-        setSnackText("Post already liked");
+        setSnackText("You can't like your own post");
         setSnackVisible(true);
       } else if (status === 404) {
         // post not found
@@ -135,13 +138,6 @@ function likePost(
         setSnackVisible(true);
       }
     });
-}
-
-// ask user to login again
-function goToLogin(navigation) {
-  return navigation.reset({
-    routes: [{ name: "Login" }],
-  });
 }
 
 export default Post;

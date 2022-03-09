@@ -16,7 +16,13 @@ function Friend(props) {
     getFriendRequests,
   } = props;
   return (
-    <Card mode="outlined" style={marginBottom && { marginBottom: 10 }}>
+    <Card
+      mode="outlined"
+      style={marginBottom && { marginBottom: 10 }}
+      onPress={() => {
+        navigation.navigate("AnotherProfile", { pUserID: userid });
+      }}
+    >
       <Card.Content>
         <View style={styles.cardContainer}>
           <Avatar.Image size={30} />
