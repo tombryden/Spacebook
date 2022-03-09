@@ -5,7 +5,10 @@ import { useState, useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Friend from "../components/Friend";
 
-function Friends({ navigation }) {
+function Friends({ route, navigation }) {
+  // ref for profile user id - the user to get friends
+  const profileUserID = useRef("");
+
   // refs for userid/token
   const userid = useRef("");
   const sessionToken = useRef("");
@@ -38,19 +41,38 @@ function Friends({ navigation }) {
       if (auserid !== null && asessionToken !== null) {
         // value previously stored
 
+        // let for profile to load - default to current logged in userid
+        let finalProfileUserID = auserid;
+
+        // check if this is viewing not your own profile
+        if (route.params !== undefined && route.params.pUserID !== undefined) {
+          const { pUserID } = route.params;
+
+          finalProfileUserID = pUserID;
+        }
+
+        profileUserID.current = finalProfileUserID;
+
         // get friends instantly on mount... and below kick off a timer every 5 seconds
-        getFriendRequests(
-          asessionToken,
-          setRequests,
-          setSnackText,
-          setSnackVisible,
-          navigation,
-          setRequestsLoading,
-          false
-        );
+
+        // check if own users profile ... if not we don't want to get friend requests
+        if (auserid === finalProfileUserID) {
+          getFriendRequests(
+            asessionToken,
+            setRequests,
+            setSnackText,
+            setSnackVisible,
+            navigation,
+            setRequestsLoading,
+            false
+          );
+        } else {
+          // remove loading for friend requests - don't want to see friend requests for other peoples profiles
+          setRequestsLoading(false);
+        }
 
         getFriendsList(
-          auserid,
+          finalProfileUserID,
           asessionToken,
           setFriends,
           setFriendsLoading,
@@ -62,19 +84,22 @@ function Friends({ navigation }) {
 
         refreshInterval = setInterval(() => {
           // get friend requests
-          getFriendRequests(
-            asessionToken,
-            setRequests,
-            setSnackText,
-            setSnackVisible,
-            navigation,
-            setRequestsLoading,
-            false
-          );
+          // check if own users profile ... if not we don't want to get friend requests
+          if (auserid === finalProfileUserID) {
+            getFriendRequests(
+              asessionToken,
+              setRequests,
+              setSnackText,
+              setSnackVisible,
+              navigation,
+              setRequestsLoading,
+              false
+            );
+          }
 
           // get friends list
           getFriendsList(
-            auserid,
+            finalProfileUserID,
             asessionToken,
             setFriends,
             setFriendsLoading,
@@ -109,10 +134,18 @@ function Friends({ navigation }) {
       </Snackbar>
 
       <ScrollView contentContainerStyle={styles.container}>
-        <Button mode="contained" style={styles.addButton}>
+        <Button
+          mode="contained"
+          style={styles.addButton}
+          onPress={() => {
+            navigation.navigate("Search");
+          }}
+        >
           Add a new friend
         </Button>
-        <Text>Incoming friend requests</Text>
+        {userid.current === profileUserID.current && (
+          <Text>Incoming friend requests</Text>
+        )}
         {requestsLoading ? (
           <ActivityIndicator />
         ) : (

@@ -1,4 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
+import Friends from "../screens/Friends";
 import Login from "../screens/Login";
 import Profile from "../screens/Profile";
 import Signup from "../screens/Signup";
@@ -14,7 +15,6 @@ function Main() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="Profile" component={Profile} />
-      {/* <Stack.Screen name="Friends" component={Friends} /> */}
       <Stack.Screen
         name="TabNavigation"
         component={TabNavigation}
@@ -24,6 +24,11 @@ function Main() {
         name="AnotherProfile"
         component={Profile}
         options={{ headerTitle: "Profile" }}
+      />
+      <Stack.Screen
+        name="AnotherFriends"
+        component={Friends}
+        options={{ headerTitle: "Friends" }}
       />
     </Stack.Navigator>
   );

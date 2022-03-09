@@ -101,7 +101,15 @@ function Profile({ route, navigation }) {
             <Button
               icon="account-group"
               onPress={() => {
-                navigation.navigate("Friends");
+                // if profileUserID is the current logged in user.. navigate to their tab of friends - else - on another user profile, therefore navigate to AnotherFriends stack nav
+
+                if (profileUserID.current === userid.current) {
+                  navigation.navigate("Friends");
+                } else {
+                  navigation.navigate("AnotherFriends", {
+                    pUserID: profileUserID.current,
+                  });
+                }
               }}
             >
               Friends
