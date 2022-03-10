@@ -10,6 +10,7 @@ function Post(props) {
     marginBottom,
     timestamp,
     likes,
+    userid,
     postUserID,
     postid,
     token,
@@ -41,21 +42,33 @@ function Post(props) {
 
           {/* container for right side of post (likes) */}
           <View style={styles.rightContainer}>
-            <Text>{likes}</Text>
-            <IconButton
-              icon="thumb-up-outline"
-              size={20}
-              onPress={() => {
-                likePost(
-                  postUserID,
-                  postid,
-                  token,
-                  setSnackText,
-                  setSnackVisible,
-                  navigation
-                );
-              }}
-            />
+            {/* if user owns the post.. allow them to edit it */}
+            {userid === postUserID && (
+              <IconButton
+                icon="pencil"
+                size={20}
+                onPress={() => {
+                  navigation.navigate("EditPost", { text: post });
+                }}
+              />
+            )}
+            <View style={styles.rightRow}>
+              <Text style={styles.likeText}>{likes}</Text>
+              <IconButton
+                icon="thumb-up-outline"
+                size={20}
+                onPress={() => {
+                  likePost(
+                    postUserID,
+                    postid,
+                    token,
+                    setSnackText,
+                    setSnackVisible,
+                    navigation
+                  );
+                }}
+              />
+            </View>
           </View>
         </View>
       </Card.Content>
@@ -73,9 +86,10 @@ const styles = StyleSheet.create({
   },
   leftContainer: {
     maxWidth: "80%",
+    display: "flex",
   },
   avatarNameContainer: {
-    flex: 1,
+    display: "flex",
     flexDirection: "row",
     // gap: "5px",
   },
@@ -90,8 +104,17 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
 
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "flex-end",
+  },
+  rightRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  likeText: {
+    position: "relative",
+    top: 1,
   },
 });
 

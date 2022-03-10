@@ -29,7 +29,7 @@ function Search({ navigation }) {
       const asessionToken = await AsyncStorage.getItem("@session_token");
 
       // set refs for userid/token to use later
-      userid.current = auserid;
+      userid.current = Number(auserid);
       sessionToken.current = asessionToken;
 
       if (auserid !== null && asessionToken !== null) {

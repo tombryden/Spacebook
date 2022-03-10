@@ -1,4 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
+import EditPost from "../screens/EditPost";
 import Friends from "../screens/Friends";
 import Login from "../screens/Login";
 import Profile from "../screens/Profile";
@@ -14,7 +15,6 @@ function Main() {
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen
         name="TabNavigation"
         component={TabNavigation}
@@ -24,6 +24,11 @@ function Main() {
         name="AnotherProfile"
         component={Profile}
         options={{ headerTitle: "Profile" }}
+      />
+      <Stack.Screen
+        name="EditPost"
+        component={EditPost}
+        options={{ headerTitle: "Edit Post" }}
       />
       <Stack.Screen
         name="AnotherFriends"

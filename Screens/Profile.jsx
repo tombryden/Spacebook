@@ -13,10 +13,10 @@ import Post from "../components/Post";
 
 function Profile({ route, navigation }) {
   // ref for profile user id
-  const profileUserID = useRef("");
+  const profileUserID = useRef();
 
   // refs for logged in userid/token
-  const userid = useRef("");
+  const userid = useRef();
   const sessionToken = useRef("");
 
   // states for profile
@@ -40,7 +40,7 @@ function Profile({ route, navigation }) {
       const asessionToken = await AsyncStorage.getItem("@session_token");
 
       // set refs for userid/token to use later
-      userid.current = auserid;
+      userid.current = Number(auserid);
       sessionToken.current = asessionToken;
 
       if (auserid !== null && asessionToken !== null) {
@@ -56,7 +56,7 @@ function Profile({ route, navigation }) {
           finalProfileUserID = pUserID;
         }
 
-        profileUserID.current = finalProfileUserID;
+        profileUserID.current = Number(finalProfileUserID);
 
         // get user info and update states
         getUserInfo(
@@ -122,7 +122,6 @@ function Profile({ route, navigation }) {
           <TextInput
             mode="outlined"
             placeholder="Create a new post"
-            right={<TextInput.Affix text="/50" />}
             multiline
             numberOfLines={4}
             onChangeText={(post) => {
@@ -164,6 +163,7 @@ function Profile({ route, navigation }) {
                 timestamp={item.timestamp}
                 likes={item.numLikes}
                 postUserID={item.author.user_id}
+                userid={userid.current}
                 token={sessionToken.current}
                 postid={item.post_id}
                 setSnackText={setSnackText}

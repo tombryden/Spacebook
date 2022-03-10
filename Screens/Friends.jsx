@@ -35,7 +35,7 @@ function Friends({ route, navigation }) {
       const asessionToken = await AsyncStorage.getItem("@session_token");
 
       // set refs for userid/token to use later
-      userid.current = auserid;
+      userid.current = Number(auserid);
       sessionToken.current = asessionToken;
 
       if (auserid !== null && asessionToken !== null) {
@@ -51,7 +51,7 @@ function Friends({ route, navigation }) {
           finalProfileUserID = pUserID;
         }
 
-        profileUserID.current = finalProfileUserID;
+        profileUserID.current = Number(finalProfileUserID);
 
         // get friends instantly on mount... and below kick off a timer every 5 seconds
 
