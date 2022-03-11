@@ -2,6 +2,7 @@ import { Avatar, Card, IconButton } from "react-native-paper";
 import { Text, StyleSheet, View } from "react-native";
 import moment from "moment";
 import axios from "axios";
+import { useState } from "react";
 
 function Post(props) {
   const {
@@ -22,6 +23,8 @@ function Post(props) {
     setPosts,
     setAllPostsLoading,
   } = props;
+
+  const [likesSt, setLikesSt] = useState(Number(likes));
 
   const formattedDate = moment(timestamp).format("DD MMMM"); // eg 06 March
   const formattedTime = moment(timestamp).format("HH:mm"); // eg 19:51
@@ -66,18 +69,20 @@ function Post(props) {
               />
             )}
             <View style={styles.rightRow}>
-              <Text style={styles.likeText}>{likes}</Text>
+              <Text style={styles.likeText}>{likesSt}</Text>
               <IconButton
                 icon="thumb-up-outline"
                 size={20}
                 onPress={() => {
                   likePost(
-                    postUserID,
+                    profileUserID,
                     postid,
                     token,
                     setSnackText,
                     setSnackVisible,
-                    navigation
+                    navigation,
+                    likesSt,
+                    setLikesSt
                   );
                 }}
               />
@@ -135,19 +140,24 @@ const styles = StyleSheet.create({
 
 // like a post
 function likePost(
-  postUserID,
+  profileUserID,
   postid,
   token,
   setSnackText,
   setSnackVisible,
-  navigation
+  navigation,
+  likesSt,
+  setLikesSt
 ) {
   return axios
-    .post(`/user/${postUserID}/post/${postid}/like`, null, {
+    .post(`/user/${profileUserID}/post/${postid}/like`, null, {
       headers: { "X-Authorization": token },
     })
     .then(() => {
       // success - post liked
+      // update like counter to +1
+      setLikesSt(likesSt + 1);
+
       setSnackText("Post liked");
       setSnackVisible(true);
     })
@@ -155,20 +165,77 @@ function likePost(
       const { status } = error.response;
       if (status === 400) {
         // bad request - error from mysql duplicate entry
-        setSnackText("Post already liked");
-        setSnackVisible(true);
+        // setSnackText("Post already liked");
+        // setSnackVisible(true);
+
+        // post already liked - removed a like
+        unlikePost(
+          profileUserID,
+          postid,
+          token,
+          setSnackText,
+          setSnackVisible,
+          navigation,
+          likesSt,
+          setLikesSt
+        );
       } else if (status === 401) {
         // unauthorised - kick to login
         navigation.navigate("Login");
       } else if (status === 403) {
-        // already liked posted
-        setSnackText("You can't like your own post");
+        // cant like posts on your own wall, or your own posts
+        setSnackText("You can't like your own posts");
         setSnackVisible(true);
       } else if (status === 404) {
         // post not found
         setSnackText("Post not found");
         setSnackVisible(true);
       } else if (status === 500) {
+        // internal error
+        setSnackText("An internal error occured. Try again later");
+        setSnackVisible(true);
+      }
+    });
+}
+
+// unlike a post
+function unlikePost(
+  profileUserID,
+  postid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation,
+  likesSt,
+  setLikesSt
+) {
+  return axios
+    .delete(`/user/${profileUserID}/post/${postid}/like`, {
+      headers: { "X-Authorization": token },
+    })
+    .then(() => {
+      // success - post liked
+      // update like counter to +1
+      setLikesSt(likesSt - 1);
+
+      setSnackText("Like removed");
+      setSnackVisible(true);
+    })
+    .catch((error) => {
+      console.log(error);
+      const { status } = error.response;
+      if (status === 401) {
+        // unauthorised - kick to login
+        navigation.navigate("Login");
+      } else if (status === 403) {
+        // cant like posts on your own wall, or your own posts
+        setSnackText("You can't like your own posts");
+        setSnackVisible(true);
+      } else if (status === 404) {
+        // post not found
+        setSnackText("Post not found");
+        setSnackVisible(true);
+      } else {
         // internal error
         setSnackText("An internal error occured. Try again later");
         setSnackVisible(true);
