@@ -18,6 +18,7 @@ function Friend(props) {
     sessionToken,
     navigation,
     getFriendRequests,
+    getFriendsList,
     pressable,
   } = props;
 
@@ -61,7 +62,8 @@ function Friend(props) {
                     setSnackText,
                     setSnackVisible,
                     navigation,
-                    getFriendRequests
+                    getFriendRequests,
+                    getFriendsList
                   );
                 }}
               />
@@ -181,7 +183,8 @@ function confirmFriendRequest(
   setSnackText,
   setSnackVisible,
   navigation,
-  getFriendRequests
+  getFriendRequests,
+  getFriendsList
 ) {
   axios
     .post(`/friendrequests/${userid}`, null, {
@@ -194,6 +197,9 @@ function confirmFriendRequest(
 
       // refresh friend requests
       getFriendRequests();
+
+      // refresh friend list
+      getFriendsList();
     })
     .catch((err) => {
       const { status } = err.response;

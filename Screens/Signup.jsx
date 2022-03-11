@@ -125,9 +125,17 @@ const signUp = (
       navigation.navigate("Login");
     })
     .catch((error) => {
-      const { status } = error.response;
+      const { status, data } = error.response;
       if (status === 400) {
-        setSnackText("Something went wrong - try different credentials");
+        if (data.includes("email must be correct")) {
+          setSnackText("Invalid email");
+        } else if (data.includes("password")) {
+          setSnackText("Password must be more than 5 characters");
+        } else if (data.includes("database")) {
+          setSnackText("Email already exists. Use another email");
+        } else {
+          setSnackText(`Something went wrong - ${error.response.data}`);
+        }
         setSnackVisible(true);
       } else {
         // error occurred

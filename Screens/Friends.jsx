@@ -141,6 +141,18 @@ function Friends({ route, navigation }) {
                   true
                 );
               }}
+              getFriendsList={() => {
+                getFriendsList(
+                  userid.current,
+                  sessionToken.current,
+                  setFriends,
+                  setFriendsLoading,
+                  true,
+                  navigation,
+                  setSnackText,
+                  setSnackVisible
+                );
+              }}
               pressable
               request
               marginBottom
