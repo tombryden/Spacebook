@@ -127,7 +127,7 @@ const signUp = (
     .catch((error) => {
       const { status } = error.response;
       if (status === 400) {
-        setSnackText("Fields failed to validate");
+        setSnackText("Something went wrong - try different credentials");
         setSnackVisible(true);
       } else {
         // error occurred
