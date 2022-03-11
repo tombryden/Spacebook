@@ -54,7 +54,7 @@ function Post(props) {
                 onPress={() => {
                   navigation.navigate("EditPost", {
                     text: post,
-                    userid: postUserID,
+                    userid: profileUserID,
                     postid,
                     token,
                     getUserPosts,
