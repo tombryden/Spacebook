@@ -5,9 +5,6 @@ import Friends from "../screens/Friends";
 import Login from "../screens/Login";
 import Profile from "../screens/Profile";
 import Signup from "../screens/Signup";
-import ProfileCamera from "../screens/ProfileCamera";
-// import Profile from "../screens/Profile";
-// import Friends from "../screens/Friends";
 import TabNavigation from "./TabNavigation";
 
 const Stack = createStackNavigator();
@@ -17,7 +14,6 @@ function Main() {
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="ProfileCamera" component={ProfileCamera} />
       <Stack.Screen
         name="TabNavigation"
         component={TabNavigation}
@@ -28,6 +24,7 @@ function Main() {
         component={EditProfile}
         options={{ headerTitle: "Edit Profile" }}
       />
+
       <Stack.Screen
         name="AnotherProfile"
         component={Profile}

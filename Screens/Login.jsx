@@ -67,14 +67,6 @@ function Login({ navigation }) {
         Create an account
       </Button>
 
-      <Button
-        onPress={() => {
-          navigation.navigate("ProfileCamera");
-        }}
-      >
-        Camera
-      </Button>
-
       <Snackbar
         visible={snackVisible}
         onDismiss={() => {

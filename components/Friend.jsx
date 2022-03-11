@@ -1,8 +1,12 @@
 import axios from "axios";
 import { StyleSheet, Text, View } from "react-native";
 import { Avatar, Card, IconButton } from "react-native-paper";
+import { useEffect, useState } from "react";
 
 function Friend(props) {
+  // state for profile image
+  const [image, setImage] = useState("");
+
   const {
     marginBottom,
     request,
@@ -14,18 +18,36 @@ function Friend(props) {
     sessionToken,
     navigation,
     getFriendRequests,
+    pressable,
   } = props;
+
+  // on mount get profile
+  useEffect(() => {
+    getProfileImage(
+      userid,
+      sessionToken,
+      setImage,
+      navigation,
+      setSnackText,
+      setSnackVisible
+    );
+  }, []);
   return (
     <Card
       mode="outlined"
       style={marginBottom && { marginBottom: 10 }}
       onPress={() => {
-        navigation.navigate("AnotherProfile", { pUserID: userid });
+        if (pressable) {
+          navigation.navigate("AnotherProfile", { pUserID: userid });
+        }
       }}
     >
       <Card.Content>
         <View style={styles.cardContainer}>
-          <Avatar.Image size={30} />
+          <Avatar.Image
+            size={30}
+            source={{ uri: `data:image/png;base64,${image}` }}
+          />
           <Text style={styles.name}>{fullname}</Text>
           {request ? (
             <View style={styles.requestContainer}>
@@ -225,6 +247,38 @@ function deleteFriendRequest(
       } else if (status === 404) {
         setSnackText("Friend request not found");
         setSnackVisible(true);
+      } else {
+        setSnackText("Internal error. Try again later");
+        setSnackVisible(true);
+      }
+    });
+}
+
+// get profile image for friend
+function getProfileImage(
+  userid,
+  token,
+  setImage,
+  navigation,
+  setSnackText,
+  setSnackVisible
+) {
+  return axios
+    .get(`/user/${userid}/photo`, { headers: { "X-Authorization": token } })
+    .then((res) => {
+      // success
+
+      // if no photo - don't update images
+      if (!res.data.includes("JFIF")) {
+        setImage(res.data);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      const { status } = err.response;
+      if (status === 401) {
+        // un auth
+        navigation.navigate("Login");
       } else {
         setSnackText("Internal error. Try again later");
         setSnackVisible(true);

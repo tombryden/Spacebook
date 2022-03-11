@@ -1,7 +1,14 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import {
   ActivityIndicator,
   Avatar,
@@ -31,6 +38,9 @@ function Profile({ route, navigation }) {
   // states for snackbar
   const [snackText, setSnackText] = useState("");
   const [snackVisible, setSnackVisible] = useState(false);
+
+  // state for image
+  const [image, setImage] = useState("");
 
   // get user info - /user on component mount
   useEffect(async () => {
@@ -67,6 +77,16 @@ function Profile({ route, navigation }) {
           setAllPostsLoading,
           navigation
         );
+
+        // get profile image
+        getProfileImage(
+          finalProfileUserID,
+          asessionToken,
+          setImage,
+          navigation,
+          setSnackText,
+          setSnackVisible
+        );
       } else {
         // reset and kick back to login
         goToLogin(navigation);
@@ -93,7 +113,25 @@ function Profile({ route, navigation }) {
         {/* <View style={styles.container}> */}
         {/* profileContainer view contains profile avatar, edit profile button, friends button */}
         <View style={styles.profileContainer}>
-          <Avatar.Image size={120} />
+          {/* wrap in touchableopacity so can press avatar to upload photo */}
+          <TouchableOpacity
+            onPress={() => {
+              if (Number(userid.current) === Number(profileUserID.current))
+                selectAndUploadProfileImage(
+                  userid.current,
+                  sessionToken.current,
+                  setSnackText,
+                  setSnackVisible,
+                  navigation,
+                  setImage
+                );
+            }}
+          >
+            <Avatar.Image
+              source={{ uri: `data:image/png;base64,${image}` }}
+              size={120}
+            />
+          </TouchableOpacity>
           <Text style={styles.nameText}>{fullName}</Text>
           {/* container for edit profile / friends */}
           <View style={styles.buttonContainer}>
@@ -329,6 +367,84 @@ function createNewPost(
 // kick user to login screen
 function goToLogin(navigation) {
   return navigation.navigate("Login");
+}
+
+// select image
+async function selectAndUploadProfileImage(
+  userid,
+  token,
+  setSnackText,
+  setSnackVisible,
+  navigation,
+  setImage
+) {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    quality: 1,
+    base64: true,
+  });
+
+  if (!result.cancelled) {
+    // got result - upload image
+    console.log(`image picked: ${result.base64}`);
+    // upload image 64 to backend
+    axios
+      .post(`/user/${userid}/photo`, result.base64, {
+        headers: { "Content-Type": "image/png", "X-Authorization": token },
+      })
+      .then(() => {
+        // refresh profile image
+        getProfileImage(
+          userid,
+          token,
+          setImage,
+          navigation,
+          setSnackText,
+          setSnackVisible
+        );
+      })
+      .catch((err) => {
+        const { status } = err.response;
+        if (status === 401) {
+          // un auth
+          navigation.navigate("Login");
+        } else {
+          setSnackText("Internal error. Try again later");
+          setSnackVisible(true);
+        }
+      });
+  }
+}
+
+function getProfileImage(
+  userid,
+  token,
+  setImage,
+  navigation,
+  setSnackText,
+  setSnackVisible
+) {
+  return axios
+    .get(`/user/${userid}/photo`, { headers: { "X-Authorization": token } })
+    .then((res) => {
+      // success
+
+      // if no photo - don't update images
+      if (!res.data.includes("JFIF")) {
+        setImage(res.data);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      const { status } = err.response;
+      if (status === 401) {
+        // un auth
+        navigation.navigate("Login");
+      } else {
+        setSnackText("Internal error. Try again later");
+        setSnackVisible(true);
+      }
+    });
 }
 
 export default Profile;

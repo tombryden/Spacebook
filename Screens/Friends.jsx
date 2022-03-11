@@ -81,34 +81,6 @@ function Friends({ route, navigation }) {
           setSnackText,
           setSnackVisible
         );
-
-        // refreshInterval = setInterval(() => {
-        //   // get friend requests
-        //   // check if own users profile ... if not we don't want to get friend requests
-        //   if (auserid === finalProfileUserID) {
-        //     getFriendRequests(
-        //       asessionToken,
-        //       setRequests,
-        //       setSnackText,
-        //       setSnackVisible,
-        //       navigation,
-        //       setRequestsLoading,
-        //       false
-        //     );
-        //   }
-
-        //   // get friends list
-        //   getFriendsList(
-        //     finalProfileUserID,
-        //     asessionToken,
-        //     setFriends,
-        //     setFriendsLoading,
-        //     false,
-        //     navigation,
-        //     setSnackText,
-        //     setSnackVisible
-        //   );
-        // }, 5000);
       } else {
         // reset and kick back to login
         navigation.navigate("Login");
@@ -200,6 +172,7 @@ function Friends({ route, navigation }) {
                   setSnackVisible
                 );
               }}
+              pressable={userid.current === profileUserID.current}
               marginBottom
             />
           ))

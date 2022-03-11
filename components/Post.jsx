@@ -2,7 +2,7 @@ import { Avatar, Card, IconButton } from "react-native-paper";
 import { Text, StyleSheet, View } from "react-native";
 import moment from "moment";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Post(props) {
   const {
@@ -26,8 +26,23 @@ function Post(props) {
 
   const [likesSt, setLikesSt] = useState(Number(likes));
 
+  // state for profile image
+  const [image, setImage] = useState("");
+
   const formattedDate = moment(timestamp).format("DD MMMM"); // eg 06 March
   const formattedTime = moment(timestamp).format("HH:mm"); // eg 19:51
+
+  // on mount get post profile image
+  useEffect(() => {
+    getProfileImage(
+      postUserID,
+      token,
+      setImage,
+      navigation,
+      setSnackText,
+      setSnackVisible
+    );
+  }, []);
 
   return (
     <Card
@@ -38,7 +53,10 @@ function Post(props) {
         <View style={styles.cardContainer}>
           <View style={styles.leftContainer}>
             <View style={styles.avatarNameContainer}>
-              <Avatar.Image size={20} />
+              <Avatar.Image
+                size={20}
+                source={{ uri: `data:image/png;base64,${image}` }}
+              />
               <Text style={styles.fullname}>{fullname}</Text>
             </View>
             <Text>
@@ -238,6 +256,38 @@ function unlikePost(
       } else {
         // internal error
         setSnackText("An internal error occured. Try again later");
+        setSnackVisible(true);
+      }
+    });
+}
+
+// get profile image for post
+function getProfileImage(
+  userid,
+  token,
+  setImage,
+  navigation,
+  setSnackText,
+  setSnackVisible
+) {
+  return axios
+    .get(`/user/${userid}/photo`, { headers: { "X-Authorization": token } })
+    .then((res) => {
+      // success
+
+      // if no photo - don't update images
+      if (!res.data.includes("JFIF")) {
+        setImage(res.data);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      const { status } = err.response;
+      if (status === 401) {
+        // un auth
+        navigation.navigate("Login");
+      } else {
+        setSnackText("Internal error. Try again later");
         setSnackVisible(true);
       }
     });
