@@ -17,6 +17,10 @@ function Post(props) {
     setSnackText,
     setSnackVisible,
     navigation,
+    getUserPosts,
+    profileUserID,
+    setPosts,
+    setAllPostsLoading,
   } = props;
 
   const formattedDate = moment(timestamp).format("DD MMMM"); // eg 06 March
@@ -48,7 +52,16 @@ function Post(props) {
                 icon="pencil"
                 size={20}
                 onPress={() => {
-                  navigation.navigate("EditPost", { text: post });
+                  navigation.navigate("EditPost", {
+                    text: post,
+                    userid: postUserID,
+                    postid,
+                    token,
+                    getUserPosts,
+                    profileUserID,
+                    setPosts,
+                    setAllPostsLoading,
+                  });
                 }}
               />
             )}

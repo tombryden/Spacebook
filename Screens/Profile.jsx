@@ -169,6 +169,10 @@ function Profile({ route, navigation }) {
                 setSnackText={setSnackText}
                 setSnackVisible={setSnackVisible}
                 navigation={navigation}
+                getUserPosts={getUserPosts}
+                profileUserID={profileUserID.current}
+                setPosts={setPosts}
+                setAllPostsLoading={setAllPostsLoading}
                 marginBottom
               />
             ))
