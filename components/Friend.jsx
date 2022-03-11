@@ -145,9 +145,8 @@ function requestFriend(
     .post(`/user/${userid}/friends`, null, {
       headers: { "X-Authorization": token },
     })
-    .then((res) => {
+    .then(() => {
       // successfully sent friend request
-      console.log(res);
       setSnackText("Friend request sent");
       setSnackVisible(true);
     })
@@ -203,7 +202,6 @@ function confirmFriendRequest(
     })
     .catch((err) => {
       const { status } = err.response;
-      console.log(err);
       if (status === 401) {
         // unauthorised
         navigation.navigate("Login");
@@ -280,7 +278,6 @@ function getProfileImage(
       }
     })
     .catch((err) => {
-      console.log(err);
       const { status } = err.response;
       if (status === 401) {
         // un auth
