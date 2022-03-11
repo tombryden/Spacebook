@@ -103,6 +103,7 @@ function Profile({ route, navigation }) {
                 navigation.navigate("EditProfile", {
                   token: sessionToken.current,
                   userid: userid.current,
+                  setFullProfileName: setFullName,
                 });
               }}
             >

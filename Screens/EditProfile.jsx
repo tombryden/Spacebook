@@ -1,12 +1,12 @@
 import { Text, StyleSheet, View } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { Button, Snackbar, TextInput } from "react-native-paper";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 function EditProfile({ route, navigation }) {
   // get token from route params
-  const { token, userid } = route.params;
+  const { token, userid, setFullProfileName } = route.params;
 
   // Input field states
   const [first, setFirst] = useState("");
@@ -24,54 +24,83 @@ function EditProfile({ route, navigation }) {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text>Edit Profile</Text>
-
-      <TextInput
-        style={styles.input}
-        label="Firstname"
-        mode="outlined"
-        value={first}
-        onChangeText={(text) => setFirst(text)}
-      />
-      <TextInput
-        style={styles.input}
-        label="Surname"
-        mode="outlined"
-        value={last}
-        onChangeText={(text) => setLast(text)}
-      />
-      <TextInput
-        style={styles.input}
-        label="Email"
-        mode="outlined"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-      <TextInput
-        style={styles.input}
-        label="Password"
-        mode="outlined"
-        secureTextEntry
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-      />
-
-      <Button mode="contained" style={styles.btnUpdate}>
-        Update
-      </Button>
-
-      <Button
-        mode="contained"
-        style={styles.btnLog}
-        color="darkred"
-        onPress={() => {
-          logout(token, navigation);
+    <>
+      {/* snackbar outside container as causes display issue */}
+      <Snackbar
+        visible={snackVisible}
+        onDismiss={() => {
+          setSnackVisible(false);
         }}
       >
-        Logout
-      </Button>
-    </View>
+        {snackText}
+      </Snackbar>
+
+      <View style={styles.container}>
+        <Text>Edit Profile</Text>
+
+        <TextInput
+          style={styles.input}
+          label="Firstname"
+          mode="outlined"
+          value={first}
+          onChangeText={(text) => setFirst(text)}
+        />
+        <TextInput
+          style={styles.input}
+          label="Surname"
+          mode="outlined"
+          value={last}
+          onChangeText={(text) => setLast(text)}
+        />
+        <TextInput
+          style={styles.input}
+          label="Email"
+          mode="outlined"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+        />
+        <TextInput
+          style={styles.input}
+          label="Password"
+          mode="outlined"
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+        />
+
+        <Button
+          mode="contained"
+          style={styles.btnUpdate}
+          onPress={() => {
+            updateProfile(
+              userid,
+              token,
+              first,
+              last,
+              email,
+              password,
+              setSnackText,
+              setSnackVisible,
+              navigation,
+              setFullProfileName
+            );
+          }}
+        >
+          Update
+        </Button>
+
+        <Button
+          mode="contained"
+          style={styles.btnLog}
+          color="darkred"
+          onPress={() => {
+            logout(token, navigation);
+          }}
+        >
+          Logout
+        </Button>
+      </View>
+    </>
   );
 }
 
@@ -142,24 +171,35 @@ function updateProfile(
   pass,
   setSnackText,
   setSnackVisible,
-  navigation
+  navigation,
+  setFullProfileName
 ) {
   return axios
     .patch(
       `/user/${userid}`,
-      { first_name: first, last_name: last, email, password: pass },
+      {
+        first_name: first,
+        last_name: last,
+        email,
+        ...(pass !== "" && { password: pass }),
+      },
       { headers: { "X-Authorization": token } }
     )
     .then(() => {
       // success
+
+      // update profile full name
+      setFullProfileName(`${first} ${last}`);
+
+      // display updated snack
       setSnackText("Updated");
       setSnackVisible(true);
     })
     .catch((err) => {
       const { status } = err.response;
       if (status === 400) {
-        // bad req - cant happen
-        setSnackText("Internal error");
+        // bad req - password issue
+        setSnackText("Password is not strong enough");
         setSnackVisible(true);
       } else if (status === 401) {
         // unauth
