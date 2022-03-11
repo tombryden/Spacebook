@@ -269,6 +269,7 @@ const styles = StyleSheet.create({
   },
   postButton: {
     marginBottom: 5,
+    marginTop: 5,
   },
 });
 
