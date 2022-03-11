@@ -112,8 +112,6 @@ const login = (
   return axios
     .post("/login", loginObj)
     .then(async (response) => {
-      console.log(response);
-
       // store user id / token in asyncstorage - already in try/catch so no issues
       await AsyncStorage.setItem("@user_id", response.data.id.toString());
       await AsyncStorage.setItem("@session_token", response.data.token);
@@ -128,8 +126,6 @@ const login = (
       // setSnackVisible(true);
     })
     .catch((error) => {
-      console.log(error);
-
       // Invalid email/pwd
       if (error.response.status === 400) {
         setSnackText("Invalid email or password");

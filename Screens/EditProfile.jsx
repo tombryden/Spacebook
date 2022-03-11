@@ -154,7 +154,6 @@ function getUserInfo(userid, token, setFirst, setLast, setEmail, navigation) {
       setEmail(response.data.email);
     })
     .catch((error) => {
-      console.log(error);
       if (error.response.status === 401) {
         navigation.navigate("Login");
       }

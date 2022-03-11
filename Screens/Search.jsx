@@ -77,6 +77,7 @@ function Search({ navigation }) {
             navigation={navigation}
             add
             marginBottom
+            pressable
           />
         ))}
       </ScrollView>

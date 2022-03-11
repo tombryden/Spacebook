@@ -117,19 +117,23 @@ const signUp = (
   // hit user endpoint to create new account with specified info
   return axios
     .post("/user", signUpRequest)
-    .then(async (response) => {
+    .then(() => {
       // successful signup
-      console.log(response);
 
       // Success - redirect to login page to login
 
       navigation.navigate("Login");
     })
     .catch((error) => {
-      // error occurred
-      console.log(error);
-      setSnackText("Something went wrong");
-      setSnackVisible(true);
+      const { status } = error.response;
+      if (status === 400) {
+        setSnackText("Fields failed to validate");
+        setSnackVisible(true);
+      } else {
+        // error occurred
+        setSnackText("Something went wrong");
+        setSnackVisible(true);
+      }
     })
     .finally(() => {
       // request complete, set loading to false

@@ -141,6 +141,7 @@ function Friends({ route, navigation }) {
                   true
                 );
               }}
+              pressable
               request
               marginBottom
             />
@@ -225,7 +226,6 @@ function getFriendRequests(
       setRequests(response.data);
     })
     .catch((err) => {
-      // console.log(err);
       const { status } = err.response;
       if (status === 401) {
         // test
