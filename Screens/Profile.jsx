@@ -97,18 +97,22 @@ function Profile({ route, navigation }) {
           <Text style={styles.nameText}>{fullName}</Text>
           {/* container for edit profile / friends */}
           <View style={styles.buttonContainer}>
-            <Button
-              icon="account-edit"
-              onPress={() => {
-                navigation.navigate("EditProfile", {
-                  token: sessionToken.current,
-                  userid: userid.current,
-                  setFullProfileName: setFullName,
-                });
-              }}
-            >
-              Edit Profile
-            </Button>
+            {/* only show edit profile if its users own profile */}
+            {profileUserID.current === userid.current && (
+              <Button
+                icon="account-edit"
+                onPress={() => {
+                  navigation.navigate("EditProfile", {
+                    token: sessionToken.current,
+                    userid: userid.current,
+                    setFullProfileName: setFullName,
+                  });
+                }}
+              >
+                Edit Profile
+              </Button>
+            )}
+
             <Button
               icon="account-group"
               onPress={() => {
